@@ -1,0 +1,16 @@
+{
+  "name": "simpleblog",
+  "version": "1.0.0",
+  "description": "a node api for a blog",
+  "main": "app.js",
+  "dependencies": {
+    "mongodb": "^3.2.3",
+    "mongoose": "^5.4.22"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "falaye iyanuoluwa",
+  "license": "ISC"
+}
