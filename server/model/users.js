@@ -1,4 +1,5 @@
 const mongoose = require('../db/mongoose');
+const jwt = require('jsonwebtoken');
 
 var userSchema = mongoose.Schema({
     username :{
@@ -22,5 +23,11 @@ var userSchema = mongoose.Schema({
         type: String
     }
 })
+function generateToken (id){
+    console.log('the id we are using is', id);
+    var token = jwt.sign({_id : id.toHexString()}, 'abc123').toString();
+    return token;
+  }
 
-module.exports = UserModel
+const UserModel =  mongoose.model('User', userSchema);
+module.exports ={ UserModel, generateToken}

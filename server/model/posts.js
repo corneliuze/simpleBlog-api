@@ -1,7 +1,14 @@
 const mongoose = require('../db/mongoose');
 
 
+
+
+
+
 var  PostSchema = mongoose.Schema({
+    tag :[{
+        type : String,
+     }],
     title :{
         type : String,
         minLength : 10,
@@ -9,16 +16,29 @@ var  PostSchema = mongoose.Schema({
 
     },
      imageUrl: {
+         type :  String,
+         required : true
 
     },
-    body :{
+    story :{
         type : String,
         minLength : 3,
         required : true
+    },
+    completedAt :{
+        type : Number
+        
+    },
+    likes:{
+        type : Number
+
+    },
+    dislikes:{
+        type : Number
 
     }
 
 });
 
-
+const PostModel = mongoose.model('Posts', PostSchema);
 module.exports = PostModel
