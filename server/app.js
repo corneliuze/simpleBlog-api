@@ -4,7 +4,7 @@ const mongoose = require('./db/mongoose');
 const PostModel = require('./model/posts');
 const {ObjectID} = require('mongodb');
 const multer = require('multer');
-const {generateToken, UserModel } = require('../server/model/users');
+const {generateToken, UserModel, findByToken } = require('../server/model/users');
 
 const app = express();
 
@@ -53,22 +53,42 @@ app.post('/users', (req, res)=>{
     username : req.body.username,
     email : req.body.email,
     password : req.body.password
-  }).then((userResponse) =>{
+  }).then( async(userResponse) =>{
     console.log('user response', userResponse);
      const token =generateToken(userResponse._id);
      console.log('token is', token)
-     return res.header('x-auth' , token).send({
-       data : userResponse,
-       id : userResponse._id,
-       message : 'user saved succesfully',
-       token 
+     var ok = await UserModel.findOne({_id : userResponse._id});
+     ok.token = token;
+     ok.save().then(() =>{
+      return res.header('x-auth' , token).send({
+        data : userResponse,
+        id : userResponse._id,
+        message : 'user saved succesfully',
+        token 
+      });
+
      });
+     
     }).catch((e) =>{
       res.send({
         message : 'unable to save',
         error : e
-      })
-    })
+      });
+    });
+});
+
+app.get('/users/me',(req, res) =>{
+   var token = req.header('x-auth');
+   findByToken(token).then((response) =>{
+     if(!response){
+       Promise.reject();
+     }
+     res.send(response);
+   }).catch((e) =>{
+     res.status(401).send(e);
+   });
+   
+
 });
 
 

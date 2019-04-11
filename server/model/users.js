@@ -6,12 +6,14 @@ var userSchema = mongoose.Schema({
         type: String,
         minLength : 5,
         trim: true,
-        required : true
+        required : true,
+        unique : true
     },
     email:{
         type: String,
         minLength : 5,
         trim: true,
+        unique: true,
         required : true
     },
     password :{
@@ -29,5 +31,24 @@ function generateToken (id){
     return token;
   }
 
+  async function findByToken(token){
+    let decoded;
+    try{
+      decoded = jwt.verify(token, 'abc123')
+    }catch(e){
+       return Promise.reject();
+    }
+
+
+    var response = UserModel.findOne({
+        '_id' : decoded._id,
+        token
+    });
+    return response;
+    
+
+
+  }
+
 const UserModel =  mongoose.model('User', userSchema);
-module.exports ={ UserModel, generateToken}
+module.exports ={ UserModel, generateToken, findByToken}
