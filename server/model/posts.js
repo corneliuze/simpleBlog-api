@@ -5,7 +5,7 @@ const mongoose = require('../db/mongoose');
 
 
 
-var  PostSchema = mongoose.Schema({
+const  PostSchema = mongoose.Schema({
     tag :[{
         type : String,
      }],
@@ -17,8 +17,6 @@ var  PostSchema = mongoose.Schema({
     },
      imageUrl: {
          type :  String,
-        
-
     },
     story :{
         type : String,
@@ -29,8 +27,8 @@ var  PostSchema = mongoose.Schema({
         type : String,
     },
     completedAt :{
-        type : Date,
-        default : new Date('YYYY-MM-DDTHH:mm:ss.sssZ')
+        type : Number,
+        default : null
     },
 
     likes:{

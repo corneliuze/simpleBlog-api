@@ -13,7 +13,11 @@ const app = express();
 app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({extended : false}));
 
-
+cloudinary.config({
+  cloud_name: 'connie19',
+  api_key: '159792258632524',
+  api_secret: 'KTHJySZQczjhgjCF1szYcoFuNp8'
+});
 
 
 
@@ -51,7 +55,7 @@ app.post('/users/signup',  (req, res)=>{
     console.log('user response', userResponse);
      const token =generateToken(userResponse._id);
      console.log('token is', token)
-     var ok = await UserModel.findOne({_id : userResponse._id});
+     const ok = await UserModel.findOne({_id : userResponse._id});
      ok.token = token;
      ok.save().then(() =>{
       return res.header('x-auth' , token).send({
@@ -77,7 +81,7 @@ app.post('/users/login', (req, res) =>{
 });
 
 app.get('/users/me',(req, res) =>{
-   var token = req.header('x-auth');
+   const token = req.header('x-auth');
    findByToken(token).then((response) =>{
      if(!response){
        Promise.reject();
@@ -94,41 +98,31 @@ app.get('/users/me',(req, res) =>{
     const path = req.file.path;
  
     cloudinary.uploader.upload(path, (data) => {
-       console.log('file uploaded to cloudinary', path)
        fs.unlinkSync(path);
        console.log('the file from cloudinary is', data)
 
-    let imagepath = data.url;
-    console.log('the url i want to save is', imageUrl);
-    const imageUrl = req.body.imagepath
-    const {tag, title, story, author} = req.body;
-    if(!title || !story ){
-      const message = new Response(400, 'Ensure all the required fields are filled', res, true, []);
-      return message.response_message();
-    }
-   
-    PostModel.create({
-      tag,
-      title,
-      imageUrl,
-      story,
-      author
+    const imagepath = data.url;
+    const completedAt = new Date().getTime();
+
+      PostModel.create({
+      title : req.body.title,
+      story: req.body.story,
+      imageUrl: imagepath,
+      completedAt
       }).then((data) =>{
-     console.log(data);
+     console.log('the post saved is',data);
+     console.log('the title is', data.title);
+  
       const savedBlogPost = new Response(200, 'post saved successfully', res, false, data);
       return savedBlogPost.response_message();
-
-    }).catch(() =>{
+     
+    }).catch((err) =>{
+      console.log('error from saving post', err)
       const unSavedBlogPost = new Response(400, 'unable to save post', res, true, [] );
       unSavedBlogPost.response_message();
     });
-     
-      }
-    )
- 
-    
-    
-  });
+     });
+    });
 
   //route to get all posts
   app.get('/posts', (req, res) =>{
@@ -215,6 +209,6 @@ app.on('listening', ()=>{
   console.log('server started on port' );
 });
 
-app.listen(1300)
+app.listen(3006)
 
 module.exports = app
