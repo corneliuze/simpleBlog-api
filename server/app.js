@@ -13,11 +13,7 @@ const app = express();
 app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({extended : false}));
 
-cloudinary.config({
-  cloud_name: 'connie19',
-  api_key: '159792258632524',
-  api_secret: 'KTHJySZQczjhgjCF1szYcoFuNp8'
-});
+
 
 
 
@@ -102,8 +98,9 @@ app.get('/users/me',(req, res) =>{
        fs.unlinkSync(path);
        console.log('the file from cloudinary is', data)
 
-    const imageUrl = req.body.data.url;
+    let imagepath = data.url;
     console.log('the url i want to save is', imageUrl);
+    const imageUrl = req.body.imagepath
     const {tag, title, story, author} = req.body;
     if(!title || !story ){
       const message = new Response(400, 'Ensure all the required fields are filled', res, true, []);
