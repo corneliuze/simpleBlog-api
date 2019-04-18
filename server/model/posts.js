@@ -17,7 +17,7 @@ var  PostSchema = mongoose.Schema({
     },
      imageUrl: {
          type :  String,
-         required : true
+        
 
     },
     story :{
@@ -25,20 +25,29 @@ var  PostSchema = mongoose.Schema({
         minLength : 3,
         required : true
     },
-    completedAt :{
-        type : Number
-        
+    author:{
+        type : String,
     },
+    completedAt :{
+        type : Date,
+        default : new Date('YYYY-MM-DDTHH:mm:ss.sssZ')
+    },
+
     likes:{
         type : Number
 
     },
     dislikes:{
         type : Number
-
-    }
+}
 
 });
 
+
+function findByTag(tag, callback){
+    return this.find({tag}, callback)
+
+}
+
 const PostModel = mongoose.model('Posts', PostSchema);
-module.exports = PostModel
+module.exports = {PostModel, findByTag}
