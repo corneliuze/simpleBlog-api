@@ -1,7 +1,8 @@
 const express = require('express');
 const BodyParser = require('body-parser');
 const mongoose = require('./db/mongoose');
-const {PostModel, findByTag} = require('./model/posts');
+const PostModel = require('./model/posts');
+const _ = require('lodash');
 const {ObjectID} = require('mongodb');
 const multer = require('multer');
 const cloudinary = require('cloudinary');
@@ -103,6 +104,7 @@ app.get('/users/me',(req, res) =>{
 
     const imagepath = data.url;
     const completedAt = new Date().getTime();
+    console.log('the array of tags are', typeof req.body.tags);
 
       PostModel.create({
       title : req.body.title,
@@ -139,27 +141,50 @@ app.get('/users/me',(req, res) =>{
   });
 
 //route to update post
-  app.patch('/post:id', (req, res) =>{
+  app.patch('/post/:id', (req, res) =>{
     const id = req.params._id;
+    const body = _.pick(req.body, ['tags', 'title','imageUrl','story', 'author'])
+
+    if(!ObjectID.isValid(id)){
+      return res.status(404).send();
+    }
+
+    PostModel.findByIdAndUpdate(id, {$set : body}, {new: true}).then((blog), () =>{
+      if(!blog){
+        return res.status(404).send();
+      }
+      res.send(body);
+
+    }).catch((e) =>{
+      console.log('error', e)
+      return res.status(400).send();
+
+    });
 
   });
 
   //route to get a particular post
-  app.get('post:id', (req, res) =>{
-    const id = req.params._id;
+  app.get('/posts/:id', (req, res) =>{
+    const id = req.params.id;
     if(!ObjectID.isValid(id)){
+      console.log('the id for this post is', id);
       // do something
+      const noValidId = new Response(400, 'no post with this id is found', res, true, []);
+      noValidId.response_message();
   }
-  PostModel.findById(id).then((result) =>{
-    if(!result){
-      const nullResult = new Response(data._id, data.tag, data.title, data.imageUrl, data.story, data.author, data.completedAt);
-      nullResult.response_message();
+  PostModel.findById(id).then((posts) =>{
+    if(!posts){
+      console.log('the result is not ',posts);
+     res.status(400).send();
 
     }else{
-      const resultMessage = new Response(data._id, data.tag, data.title, data.imageUrl, data.story, data.author, data.completedAt);
-      return resultMessage.response_message();
+      console.log('the result is',posts);
+      res.send({posts});
+      
     }
-  }).catch(() =>{
+  }).catch((err) =>{
+    console.log('error getting the blog post by id', err);
+    const errorMessage = new Response(400, 'error finding blog post', res, true, err);
 
   });
 
@@ -183,18 +208,20 @@ app.get('/users/me',(req, res) =>{
   })
 
   //route to delete post
-  app.delete('/post:id', (req, res) =>{
-    let id = req.params._id;
+  app.delete('/post/:id', (req, res) =>{
+    let id = req.params.id;
+    console.log('the id of the item we want to delete', id);
   if(!ObjectID.isValid(id)){
-   // do something
+     return res.status(400).send();
   }
-  PostModel.findByIdAndRemove(id).then(() =>{
+  PostModel.findByIdAndRemove(id).then((post) =>{
     if(!post){
- // do something
+     res.status(404).send();
     }
-  var deletedPost = new Response(200, `${id} is deleted`, res, false, {todo});
-  deletedPost.response_message(data._id, data.tag, data.title, data.imageUrl, data.story, data.author, data.completedAt);
-  }).catch(() =>{
+    res.status(200).send({post})
+  }).catch((e) =>{
+    console.log('the error while deleting', e);
+    res.status(404).send(e);
 
   })
 

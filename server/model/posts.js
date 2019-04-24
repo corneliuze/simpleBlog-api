@@ -6,7 +6,7 @@ const mongoose = require('../db/mongoose');
 
 
 const  PostSchema = mongoose.Schema({
-    tag :[{
+    tags :[{
         type : String,
      }],
     title :{
@@ -42,10 +42,12 @@ const  PostSchema = mongoose.Schema({
 });
 
 
-function findByTag(tag, callback){
+
+
+PostSchema.static('findByTag', (tag, callback) =>{
     return this.find({tag}, callback)
 
-}
+})
 
 const PostModel = mongoose.model('Posts', PostSchema);
-module.exports = {PostModel, findByTag}
+module.exports = PostModel
