@@ -6,9 +6,7 @@ const mongoose = require('../db/mongoose');
 
 
 const  PostSchema = mongoose.Schema({
-    tags :[{
-        type : String,
-     }],
+    tags : [String],
     title :{
         type : String,
         minLength : 10,
@@ -16,7 +14,7 @@ const  PostSchema = mongoose.Schema({
 
     },
      imageUrl: {
-         type :  String,
+         type :  String
     },
     story :{
         type : String,
@@ -31,23 +29,26 @@ const  PostSchema = mongoose.Schema({
         default : null
     },
 
-    likes:{
-        type : Number
-
+     likes:{
+        type : Number,
+        default : 0 
     },
-    dislikes:{
-        type : Number
-}
 
+    dislikes : {
+        default : 0,
+        type : Number
+
+    }
 });
 
 
+function findByCategory(tag, callback){
+    return this.find({tag}, callback);
+
+}
 
 
-PostSchema.static('findByTag', (tag, callback) =>{
-    return this.find({tag}, callback)
 
-})
 
 const PostModel = mongoose.model('Posts', PostSchema);
 module.exports = PostModel
